@@ -3,7 +3,7 @@ module ActiveAdminImport
   class Importer
 
     attr_reader :resource, :options, :result, :model
-    attr_accessor :csv_lines, :headers
+    attr_accessor :csv_lines, :headers, :request_params
 
     OPTIONS = [
         :validate,
@@ -20,9 +20,10 @@ module ActiveAdminImport
         :csv_options
     ].freeze
 
-    def initialize(resource, model, options)
+    def initialize(resource, model, options, request_params)
       @resource = resource
       @model = model
+      @request_params = request_params
       @headers = model.respond_to?(:csv_headers) ? model.csv_headers : []
       assign_options(options)
     end
@@ -66,6 +67,21 @@ module ActiveAdminImport
 
     def header_index(header_key)
       headers.values.index(header_key)
+    end
+
+    # Add a header to the CSV at the start of the headers
+    def add_header_at_start(header)
+      add_header_at_index(header, 0)
+    end
+
+    # Add a header to the CSV at the end of the headers
+    def add_header_at_end(header)
+      add_header_at_index(header, -1)
+    end
+
+    # Add a header to the CSV at the index position of the headers
+    def add_header_at_index(header, index)
+      @headers.insert(index, header)
     end
 
     protected
